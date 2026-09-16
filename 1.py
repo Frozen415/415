@@ -40,6 +40,7 @@ if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
 
+    # 构造完整消息数组：系统提示 + 历史对话
     msg_list = [{"role": "system", "content": system_prompt}]
     msg_list.extend(st.session_state.messages)
 
@@ -51,8 +52,12 @@ if user_input:
         }
         payload = {
             "model": "qwen-turbo",
-            "messages": msg_list,
-            "result_format": "message"
+            "input": {
+                "messages": msg_list
+            },
+            "parameters": {
+                "result_format": "message"
+            }
         }
         response = requests.post(
             "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
@@ -67,4 +72,5 @@ if user_input:
             answer = f"⚠️ 调用出错：{response.text}"
             placeholder.markdown(answer)
     st.session_state.messages.append({"role": "assistant", "content": answer})
+
 
